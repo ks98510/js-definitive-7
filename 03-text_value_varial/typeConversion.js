@@ -224,5 +224,21 @@ console.log(first, other)
 //  global Function 
 const { sqrt, pow, ceil, floor, abs } = Math
 
-let transparent = {r: 0.0, g: 0.0, b: 0.0, a: 1.0}; // A RGBA color
-let {r, g, b} = transparent;  // r == 0.0; g == 0.0; b == 0.0
+// let transparent = {r: 0.0, g: 0.0, b: 0.0, a: 1.0}; // A RGBA color
+// let {r, g, b} = transparent;  // r == 0.0; g == 0.0; b == 0.0
+
+// we can use colon-separated pair of identifiers . 
+
+const { cos: cosine } = Math
+console.log(cosine(0))
+
+// destructure assignment in the nested array
+// let points = [{ x: 1, y: 2 }, { x: 3, y: 4 }];
+// let [{ x: x1, y: y1 }, { x: x2, y: y2 }] = points;
+// console.log((x1 === 1 && y1 === 2 && x2 === 3 && y2 === 4))
+// object
+// let objects = { p1: [1, 2], p2: [3, 4] };
+// let { p1: [x1, y1], p2: [x2, y2] } = objects
+// console.log(x1, y1, x2, y2)
+
+ 
