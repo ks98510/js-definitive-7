@@ -35,3 +35,9 @@ class Circle {
 // import Circle from './circle.js';
 // import { PI } from './circle.js';
 // import { Circle as Circle2, PI as PI2 } from './circle.js';
+const PI = Math.PI;
+const TAU = 2 * PI;
+export { PI, TAU };
+export const PI;
+export function magnitude(x, y) { return Math.sqrt(x * x + y * y); }
+

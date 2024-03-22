@@ -1,3 +1,6 @@
+function log(x) {
+  console.log(x)
+}
 // # 4.1 primary expressions
 
 // ## 4.1.1 primary expression
@@ -55,14 +58,14 @@ function squareF(x, log) {
   return;
 }
 
-let f = null, x = 0;
-try {
-  f(x++);
-}
-catch (err) {
-  // console.log(x); //1
-}
-f?.(x++);
+// let f = null, x = 0;
+// try {
+//   f(x++);
+// }
+// catch (err) {
+//   // console.log(x); //1
+// }
+// f?.(x++);
 // console.log(x) // 1 increment is skipped because of the short-circuiting
 
 // o.m()
@@ -183,4 +186,177 @@ console.log(-9 >> 1) // -5
 6. any combinations of values are noEquality.
  */
 
-"1" == true;  // true=>1;"1"==1;1==1;return true
+// "1" == true;  // true=>1;"1"==1;1==1;return true
+
+// ##4.9.2 comparison operators
+// > < <= >= 
+// conversion rules
+// 1.object is converted to primitive value. valueOf() toString()
+// 2.if both operands are string 
+// 3.if at least one operand is number , convert to number ,if NaN appear, return false , 
+// !! string are the sequence of 16-bit integer values. all capital ASCII letters are less then lowercase ASCII letters.
+
+// use String.toLowerCase  or String.toUpperCase() 
+// + favor to convert string to number , comparison favors to convert to number
+
+// ###4.9.3 in operator
+/* let point = { x: 1, y: 1 };
+console.log("x" in point);
+console.log("toString" in point); // true object inherits toString method;
+
+let data = [7, 8, 9];
+console.log("0" in data); // true
+console.log(1 in data); // true
+ */
+
+// ###4.9.4 instanceof operator
+// left-side operand is an object , right-side should be a function
+
+let d = new Date();
+// console.log(d instanceof Date) // true;
+// console.log(d instanceof Object) //true all objects are instances of object
+// console.log(d instanceof Number); // false
+let ar = [1, 2, 3];
+ar instanceof Object;
+ar instanceof Array;
+ar instanceof RegExp;
+
+// if left-side is not a object , instanceof return false , if righthand side is not a class of Object ,it throws a typeError
+
+// ar instanceof null; //TypeError
+// !! prototype chain  o instanceof f , find f.prototype is one of the value in the prototype chain of o.
+
+// #4.10 logical expression
+// && || !
+
+// & : 1.x===0 && y==0; 2.truthy and falsy 3.return the truthy or falsy value(if left is falsy , return left ,else depends on right)
+let obj = { x: 1 };
+let n = null;
+// console.log(obj && n) // null
+// console.log(obj && obj.x) // 1
+// console.log(n && n.x) // null because the left is null ,so it doesn't evaluate the right.
+// called short circuiting
+// if (a === b) stop(); invoke stop only if a===b
+// (a === b) && stop(); this does the same thing
+
+// || Logical OR
+// if the first operand is truthy , it short-circuit and return the first operand without evaluating the expression on the right;
+'s' || blur.c; // there is no Error;
+// let max = maxWidth || preferences.maxWidth || 500 // get the first truthy value/
+// 0 || blue.s; // Reference Error 0 is false  we can use ?? to replace.
+function copy(o, p) {
+  p = p || {} // prior ES6
+}
+function compES6(o, p = {}) { }
+
+// !Logical NOT
+// console.log(!' ') //false
+
+// #4.11 assignment expression
+// = right-left associativity
+// let i = j = k = 0;
+// console.log(2 = 3) // the left-side is a lvalue.
+
+// ##4.11.1 assignment with operation
+// total += salesTax  the same as total = total +salesTax;
+// !! a op=b op is the any operator ; a = a ap b ; the difference between them is a is evaluated once in the first line  and it is evaluated twice in the second line.
+let data = [1, 2, 3], i = 0;
+// console.log(data[i++] *= 2); //2
+// console.log(data, i) //[2,2,3] ,1
+data[i++] = data[i++] * 2;
+// console.log(data, i); // [4,2,3],2
+
+// #4.12 evaluation expression. global function eval() may be a security hole.
+//  console.log(eval("3+2")) //5
+// some website use http "content-security-policy" header to disable eval()
+eval("function fb() { return x+1;}");
+// console.log(fb)
+// ##4.12.2 global Eval()s2
+let x = "global", y = "global";   // Two global variables
+const geval = eval;               // Using another name does a global eval
+function f() {                    // This function does a local eval
+  let x = "local";              // Define a local variable
+  eval("x += 'changed';");      // Direct eval sets local variable
+  return x;                     // Return changed local variable
+}
+function g() {                    // This function does a global eval
+  let y = "local";              // A local variable
+  geval(" y += 'changed';");     // Indirect eval sets global variable
+  return y;                     // Return unchanged local variable
+}
+// console.log(f(), x); // Local variable changed: prints "localchanged global":
+// console.log(g(), y); // Error referenceError
+// geval("let x = 1;console.log(x)"); // true
+// ! if we call eval by using another name , the scope is the same as the caller.
+// strict mode don't allow to overwrite eval
+
+// #4.13 miscellaneous operator
+// ?:
+x > 0 ? x : -x;// only evaluate one of the second and third operands.
+// greeting = "hello " + (username ? username : "there");
+
+// ?? First-defined only if the first operand is nullish(null or undefined),it return the second operand.
+a ?? b;
+(a !== null && a !== undefined) ? a : b;
+'' ?? 's' //0
+// If maxWidth is truthy, use that. Otherwise, look for a value in
+// the preferences object. If that is not truthy, use a hardcoded constant.
+// let max = maxWidth || preferences.maxWidth || 500; // this will ignore the zero or empty string.
+// let max = maxWidth ?? preferences.maxWidth ?? 500;
+
+let option = { timeout: 0, title: "", verbose: false, n: null };
+/* log(option.timeout ?? 1000); //0
+log(option.title ?? "unTitled"); //''
+log(option.verbose ?? true); // false
+log(option.n ?? 10); //10
+ */// it has no higher or lower precedence than && or || , so we must use parentheses
+(a ?? b) || c;
+
+// ##4.13.3 the typeof operator
+/* log(typeof undefined); // undefined
+log(typeof null); // !!object
+log(typeof true); // boolean
+log(typeof 1);
+log(typeof NaN); //number
+log(typeof BigInt(11)) // bigint
+log(typeof 'hello') // string
+log(typeof String.toString) // function
+log(typeof {}) // object 
+*/
+
+// ##4.13.4 the delete operator
+/* 
+let od = { x: 1, y: 2, z: 3 };
+delete od.x;
+log("x" in od); //false
+
+let ad = [1, 2, 3];
+delete ad[2];
+log(2 in ad); // false
+log(ad); // [1,2,<empty item>]
+log(ad.length); // 3
+ */
+
+// let od = { x: 1, y: 2 };
+// log(delete od.x); // true;  delete one of the exist property;
+// log(delete od.x); // true;
+// log(delete 1); //true;
+// log(delete od); // return false,can't delete a variable , or SyntaxError in strict mood;
+// log(delete Object.prototype); // return false, can't delete undeletable property. typeError
+
+
+// ##4.13.5 the await operator
+// only used in the async keyword function.
+
+// ##4.13.6 the void operator
+let counter = 0;
+const increment = () => void counter++;
+increment();
+// log(counter); // 1
+
+// ##4.13.7 the comma operator(,)
+// i = 0, j = 1, k = 2;
+for (let i = 0, j = 10; i < j; i++, j++) {
+
+}
+
