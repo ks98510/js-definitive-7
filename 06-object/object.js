@@ -201,7 +201,201 @@ log(Object.getOwnPropertyNames(enumObj)) // ["x", "y", "z"]
 /* Object.getOwnPropertySymbols: return the name of Symbol properties */
 log(Object.getOwnPropertySymbols(Date.prototype));//[ Symbol(Symbol.toPrimitive) ]
 /* Reflect.ownKeys(): all own properties names,both enumerable and non-enumerable,including Symbol properties */
-log(Reflect.ownKeys(Date.prototype)) //[  'toLocaleDateString','toLocaleTimeString',Symbol(Symbol.toPrimitive)]
+Reflect.ownKeys(Date.prototype) //[  'toLocaleDateString','toLocaleTimeString',Symbol(Symbol.toPrimitive)]
 
 /* # 6.6.1 property enumeration order */
 // eS6 formally defines the order in which the own properties of an object are enumerated. all preceding methods and JSON.stringfy 
+/* 
+  1.firstly, list the string properties whose names are non-negative integers in numeric order 
+  2.list all remaining properties with string names
+  3.symbol
+*/
+/* for/in */
+
+/* # 6.7 extending Object */
+let target = { x: 1, y: 1, z: 1 }, source = { y: 2, z: 3 };
+for (let key of Object.keys(source)) {
+  target[key] = source[key];
+}
+target;
+/* Object.assign */
+// Object.assign copies properties with ordinary property get and set operations.
+log(Object.assign(target, source));// { x: 1, y: 2, z: 3 }
+log(Object.assign({}, target, source)) // { x: 1, y: 2, z: 3 }
+let n = { ...target, ...source };
+
+/* 6.8 serializing objects string=>object  object=>string*/
+let sero = { x: 1, y: { z: [false, null, undefined, NaN, -Infinity, Infinity] } }; // Define a test object
+// log(JSON.stringify(sero));   // s == '{"x":1,"y":{"z":[false,null,""]}}'
+// log(JSON.parse(JSON.stringify(sero)));       // p == {x: 1, y: {z: [false, null, ""]}}
+// JSON javaScript Object Notation
+// NaN , Infinity, -Infinity, and undefined are  serialized to null
+// Date Object are serialized to ISO-formatted date strings,but JSON.parse leaves these in string.
+// function ,RegExp,Error objects and the undefined value can't be serialized or restored.
+let special = { a: function () { 123 }, b: new RegExp('.*'), d: undefined }
+log(JSON.stringify(special));  // {"b":{},"c":{}} 对于不能序列化的属性，JSON.stringify 会忽略它们。
+// JSON.stringify JSON.parse 都可以接收第二个实参，通过传入需要序列化的列表来自定义
+/* 第二个参数replace 可以是(key,value)=> ,也可以是数组[] */
+JSON.stringify(special, (key, value) => {
+  log(key, value);
+  return value
+})
+JSON.stringify(special, ['a', 'b', 'c'])
+/* 第三个参数space,如果是数字的话就代表是空行缩进 ，如果是字符串的话，使用该字符串作为缩进字符*/
+const tobj = {
+  name: "John",
+  age: 30,
+  city: "New York"
+};
+const jsonString = JSON.stringify(tobj, null, "lxl"); // 使用两个空格进行缩进
+jsonString;
+
+/* # 6.9 Object methods */
+/* # 6.9.1 toString() */
+let s = { x: 1, y: 1 };
+s.toString() // "[object Object]"
+// many classes define their own version of toString(),like array ,function.
+let toFunc = {
+  x: 1,
+  y: 2,
+  toString: function () { return `(${this.x}, ${this.y})`; }
+};
+toFunc.toString(); //(1,2)
+/* # 6.9.2 toLocalString():return a localized string representation of the object */
+point = {
+  x: 1000,
+  y: 2000,
+  toString: function () { return `(${this.x}, ${this.y})`; },
+  toLocaleString: function () {
+    return `(${this.x.toLocaleString()}, ${this.y.toLocaleString()})`;
+  }
+};
+point.toString()        // => "(1000, 2000)"
+log(point.toLocaleString()) // => "(1,000, 2,000)": note thousands separators
+/* # 6.9.3 valueOf():to convert to primitive value */
+point = {
+  x: 3,
+  y: 4,
+  valueOf: function () { return Math.hypot(this.x, this.y); }
+};
+Number(point)  // => 5: valueOf() is used for conversions to numbers
+point > 4      // => true
+point > 5      // => false
+point < 6      // => true
+/* # 6.9.4 toJSON():Object.prototype 中并没有 toJSON方法.但是JSON.stringfy 会调用toJSON */
+point = {
+  x: 1,
+  y: 2,
+  toString: function () { return `(${this.x}, ${this.y})`; },
+  toJSON: function () { return this.toString(); }
+}
+log(JSON.stringify(point)) //"(1,2)"
+
+/* # 6.10 extended Object literal syntax */
+/* # 6.10.1 shorthand properties */
+x = 1, y = 2;
+o = {
+  x, y
+}
+/* # 6.10.2 computed property names */
+const PROPERTY_NAME = 'P1';
+function computePropertyName() { return "p" + 2; }
+o[PROPERTY_NAME] = 1;
+o = {
+  [PROPERTY_NAME]: 1,
+  [computePropertyName()]: 2
+}
+/* # 6.10.3 symbol as property names */
+// symbol is a primitive value , not a constructor,the point of symbol is not security ,but to define a safe extension mechanism for object.
+const extension = Symbol("my extension symbol");
+o = {
+  [extension]: {}
+}
+o[extension].x = 0;
+/* # 6.10.4 spread operator */
+let position = { x: 0, y: 0 };
+let dimensions = { width: 100, height: 75 };
+let rect = { ...position, ...dimensions };
+o = { x: 1 };
+p = { x: 0, ...o };
+log(p.x); //1
+/* ...operator can only spread out the own properties , not any inherited ones */
+o = Object.create({ x: 1 });
+p = { ...o }
+log(p); // {}
+/* ... operator is inefficient for large objects */
+/* # 6.10.5  shorthand methods*/
+let square = {
+  area: function () { return this.side ** 2 },
+  side: 2
+}
+square = {
+  area() { return this.side * this.side },
+  side: 10
+}
+const METHOD_NAME = 'M';
+const symbol = Symbol('');
+let weirdMethods = {
+  [METHOD_NAME](x) { return x + 1 },
+  [symbol](x) { return x + 2 },
+  "method With Spaces"(x) { return x + 3 }
+}
+weirdMethods["method With Spaces"](1)  // => 2
+weirdMethods[METHOD_NAME](1)           // => 3
+weirdMethods[symbol](1)                // => 4
+// in order to make an object iterable,you need to define a method named Symbol.iterator
+/* # 6.10.6 property getters and setters */
+/* if property has only getter ,is a read-only , if only has a setter it's a write-only property */
+/* o = {
+  dataProps: value,
+  get accessorProp() { return this.dataProps },
+  set accessorProp() { return this.dataProps = value }
+} */
+p = {
+  x: 1.0,
+  y: 1.0,
+  // r is a read-write accessor property with getter and setter.
+  // Don't forget to put a comma after accessor methods.
+  get r() { return Math.hypot(this.x, this.y); },
+  set r(newvalue) {
+    let oldvalue = Math.hypot(this.x, this.y);
+    let ratio = newvalue / oldvalue;
+    this.x *= ratio;
+    this.y *= ratio;
+  },
+  get theta() { return Math.atan2(this.y, this.x) }
+}
+// getter and setter accessor properties are inherited.
+log(p.r) // 1.4142135623730951
+log(p.theta);
+q = Object.create(p);
+q.x = 3, q.y = 4;
+log(q.r);
+// This object generates strictly increasing serial numbers
+const serialnum = {
+  // This data property holds the next serial number.
+  // The _ in the property name hints that it is for internal use only.
+  _n: 0,
+
+  // Return the current value and increment it
+  get next() { return this._n++; },
+
+  // Set a new value of n, but only if it is larger than current
+  set next(n) {
+    if (n > this._n) this._n = n;
+    else throw new Error("serial number can only be set to a larger value");
+  }
+};
+serialnum.next = 10;    // Set the starting serial number
+serialnum.next          // => 10
+serialnum.next          // => 11: different value each time we get next
+log(serialnum._n)
+// This object has accessor properties that return random numbers.
+// The expression "random.octet", for example, yields a random number
+// between 0 and 255 each time it is evaluated.
+const random = {
+  get octet() { return Math.floor(Math.random() * 256); },
+  get uint16() { return Math.floor(Math.random() * 65536); },
+  get int16() { return Math.floor(Math.random() * 65536) - 32768; }
+};
+// computed应该就是利用这个特点吧

@@ -306,7 +306,7 @@ a; //[1,2]
 /* two arguments specify the start and the end of the slice to be returned */
 // contains the element specified by the first argument and all subsequent elements up to , but not including ,the second argument.
 // if there is only one argument , return the subsequent from the position to the end.  if either argument is negative , it specifies an array element relative to the length of the array.
-// -1=> the last element ,slice doesn't modify the array.
+// -1=> the  element before last element. ,slice doesn't modify the array.
 a = [1, 2, 3, 4, 5];
 a.slice(0, 3); // [1,2,3]
 a.slice(3); //[4,5];
@@ -322,3 +322,153 @@ a.slice(4, 3); // []
    if this second argument is omitted , all elements from the start to the end of array are removed.
    return an array of the element that be removed.
 */
+a = [1, 2, 3, 4, 5, 6, 7, 8];
+log(a.splice(4, 0, "1`")); // [5,6,7,8]
+log(a); // [1,2,3,4,1`,5,6,7,8]
+log(a.splice(1, 2)); // [2,3]  now is [1,4];
+log(a.splice(1, 1));// [4], [1]
+/* the any number of  following arguments specify the elements to be inserted into the array,starting at the position specified by the first argument, */
+a = [1, 2, 3, 4, 5];
+a.splice(2, 0, "a", "b");
+a; // [1, 2, "a", "b", 3, 4, 5]
+a.splice(2, 2, [1, 2], 3);
+a; // [1, 2, [1, 2], 3, 4, 5]
+a.splice(3, 0, "lxl");
+log(a);
+/* note :unlike concat ,splice insert array themselves , not the elements of array */
+/* Fill */
+/* set the elements of array , slice of the array , to a specified value , return the modified array */
+/* three arguments : value,start ,end；the same like slice */
+a = new Array(5);
+a.fill(1);  // [1,1,1,1,1]
+a.fill(9, 1, 2);// [1,9,1,1,1]
+a.fill(8, 2, -1); // [1,9,8,8,1] 
+/* CopyWithin */
+/* three arguments :the destination index ,the start index ,the end index */
+a = [1, 2, 3, 4, 5];
+a.copyWithin(1);//[1, 1, 2, 3, 4]
+a.copyWithin(2, 3, 5); //[1, 2, 3, 4, 4] copy 3,4 to index 2
+a.copyWithin(0, -2); //[4,4,3,4,4]
+
+/* # 7.8.6 array searching and sorting methods */
+/* IndexOf():from start to the end; LastIndexOf():from end to the start */
+a = [0, 1, 2, 1, 0];
+a.indexOf(1); //1
+a.lastIndexOf(1); //3 a[3]===1
+a.indexOf(3); //-1
+/* use the equivalent of the === opera */
+/* the second optional argument specifies the position at which to begin the search.if it is negative ,it seems like the 0*/
+// Find all occurrences of a value x in an array a and return an array
+// of matching indexes
+function findall(a, x) {
+  let results = [],            // The array of indexes we'll return
+    len = a.length,          // The length of the array to be searched
+    pos = 0;                 // The position to search from
+  while (pos < len) {           // While more elements to search...
+    pos = a.indexOf(x, pos); // Search
+    if (pos === -1) break;   // If nothing found, we're done.
+    results.push(pos);       // Otherwise, store index in array
+    pos = pos + 1;           // And start next search at next element
+  }
+  return results;              // Return array of indexes
+}
+/* Includes */
+/* the different from indexOf is that indexOf consider that NaN is different from any other value,but includes consider that NaN is equal to NaN */
+a = [1, true, 3, NaN];
+a.includes(true); // true;
+a.includes("3"); // false;
+a.includes(NaN); // true;
+a.indexOf(NaN); // -1
+/* Sort */
+/* if there is no argument , sort as the alphabetical order */
+a = [undefined, "banana", "cherry", "apple"];
+a.sort(); // ["apple", "banana", "cherry",undefined]  modify the array
+/* if there is an undefined value , they are sorted to the end */
+/* we can pass a comparison method to a custom sort order ,if you want the first element appear before the second element ,return a value less than zero. if they are equivalent ,return zero*/
+a = [33, 4, 1111, 222];
+a.sort(); // [1111,222,33,4]
+a.sort((a, b) => { return a - b }) //[4,33,222,1111]
+a.sort((a, b) => b - a) //[1111,222,33,4]
+a = ["ant", "Bug", "cat", "Dog"];
+a.sort();    // a == ["Bug","Dog","ant","cat"]; case-sensitive sort
+a.sort(function (s, t) {
+  let a = s.toLowerCase();
+  let b = t.toLowerCase();
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+});   // a == ["ant","Bug","cat","Dog"]; case-insensitive sort
+/* Reverse */
+/* it doesn't create a new array */
+a = [1, 2, 3];
+a.reverse(); // [3,2,1] 
+
+/* # 7.8.7 Array to string conversions */
+/* Join(): the separate string , default is comma(,) */
+log(a.join()); //3,2,1
+log(a.join(" ")); // 3 2 1
+b = new Array(10);
+log(b.join('-')); // ---------  a string of 9 '-';
+/* join is the inverse of the String.split */
+/* toString() : is the same like join with no argument */
+log(["1", "2"].toString()); //1,2
+["a", "b", "c"].toString();  // => "a,b,c"
+log([1, [2, "c"]].toString());     // => "1,2,c"
+log([[2, ["c", [1]]]].toString()); // 2,c,1
+/* note that the output doesn't include square brackets or any other sort of delimiter around the value */
+/* ToLocalString : calling the TolocalString() */
+
+/* # 7.8.8 Static Array methods */
+/* Array.isArray();Array.from();Array.of() */
+log(Array.isArray([])); //true;
+log(Array.isArray({}));//false 
+
+
+/* 7.9 Array-like object */
+a = {};
+i = 0;
+while (i < 10) {
+  a[i] = i ** 2;
+  i++;
+}
+a.length = i;
+
+let total = 0;
+for (let j = 0; j < a.length; j++) {
+  total += a[j];
+}
+/* document API return the array-like Object */
+// Determine if o is an array-like object.
+// Strings and functions have numeric length properties, but are
+// excluded by the typeof test. In client-side JavaScript, DOM text
+// nodes have a numeric length property, and may need to be excluded
+// with an additional o.nodeType !== 3 test.
+function isArrayLike(o) {
+  if (o &&                            // o is not null, undefined, etc.
+    typeof o === "object" &&        // o is an object
+    Number.isFinite(o.length) &&    // o.length is a finite number
+    o.length >= 0 &&                // o.length is non-negative
+    Number.isInteger(o.length) &&   // o.length is an integer
+    o.length < 4294967295) {        // o.length < 2^32 - 1
+    return true;                    // Then o is array-like.
+  } else {
+    return false;                   // Otherwise it is not.
+  }
+}
+log(isArrayLike([])); // true;
+/* use Function.call() to call a real array function */
+a = { "0": "a", "1": "b", "2": "c", length: 3 }; // An array-like object
+log(Array.prototype.join.call(a, "+"));// => "a+b+c"
+Array.prototype.map.call(a, x => x.toUpperCase())  // => ["A","B","C"]
+Array.prototype.slice.call(a, 0)   // => ["a","b","c"]: true array copy
+Array.from(a)                      // => ["a","b","c"]: easier array copy
+
+
+/* # 7.10 String as Arrays */
+/* the string behaves like read-only arrays of UTF-16 characters, Instead of accessing individual characters with the charAt() method, you can use square brackets:  */
+let s = "test";
+log(s.charAt(1)); //e
+s[1]; //e
+/* more concise , readable, potentially efficient */
+Array.prototype.join.call("JavaScript", " ")  // => "J a v a S c r i p t"
+// Array.prototype.push.call("JavaScript",'SSS'); // can't assign the read only property length.
