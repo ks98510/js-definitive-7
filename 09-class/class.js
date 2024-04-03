@@ -110,6 +110,13 @@ class Span extends cRange {
       super(start + length, start);
     }
   }
+  static parse(s) {
+    let matches = s.match(/^\((\d+)\.\.\.(\d+)\)$/);
+    if (!matches) {
+      throw new TypeError("can't");
+    }
+    return new Range(parseInt(matches[1]), parseInt(matches[2]));
+  }
 }
 // two forms of class declaration
 let square = function (x) { return x * x }
@@ -120,3 +127,193 @@ new Square(3).area;
 // class declaration is not hoisted.
 
 /* ## 9.3.1 Static Methods */
+let sr = Span.parse("(1...10)");
+// sr.parse(); // TypeError is not a function
+// static method can onl be used through the constructor. so it almost never make sense to use this keyword;
+
+/* ## 9.3.2 Getters,Setters,and Other Method Forms */
+
+/* ## 9.3.3 Public Private ,and Static Fields */
+// class Buffer {
+//   constructor() {
+//     this.size = 0;
+//     this.capacity = 4096;
+//     this.buffer = new Uint8Array(this.capacity)
+//   }
+// }
+// If we wanted this static field to be accessible only within the class, we could make it private using a name like #pattern.
+// if you want the size is a read-only field ,use getter function.
+class Buffer {
+  #size = 0;
+  get size() { return this.#size }
+  capacity = 4096;
+  buffer = new Uint8Array(this.capacity);
+  static #interRangePattern = 'inter'
+}
+const buffer = new Buffer(); // 没有size属性 因为用了#
+buffer.size = 10;
+buffer.size; // 0;
+// if we want to add a new field to the class, we can use the static field.
+Buffer;
+
+/* ## 9.3.4 Complex Number Class(复数) */
+class Complex {
+  constructor(real, imaginary) {
+    this.r = real;
+    this.i = imaginary;
+    this.name = "lxl";
+    console.log('complex', new.target)
+  }
+  // instance methods
+  plus(that) {
+    return new Complex(this.r + that.r, this.i + that.i)
+  }
+  // class methods
+  static sum(c, b) { return c.plus(b) }
+  // instance getters
+  get real() { return this.r; }
+  get imaginary() { return this.i; }
+  // toString function
+  toString() {
+    return this.r + "+" + this.i + "e"
+  }
+}
+// some class field predefined 
+Complex.ZERO = new Complex(0, 0);
+Complex.ONE = new Complex(1, 0);
+
+c = new Complex(2, 3)
+d = new Complex(c.i, c.r); // 3,2
+c.plus(d).toString() // 5+5e
+c.real; //2
+Complex.sum(c, d); // Complex{r:5,i:5}
+Complex.ZERO.toString() //0+0e
+
+
+/* # 9.4 Adding Methods to Existing Classes */
+// js's prototype-based inheritance mechanism is dynamic : that means :an object inherited the properties from the prototype , even if the properties has changed after the object is created.
+Complex.prototype.conj = function () { return new Complex(this.r, -this.i) }
+// the build-in classes is also like this.
+if (!String.prototype.startswith) {
+  String.prototype.startswith = function (prefix) {
+    return this.indexOf(prefix) === 0;
+  }
+}
+Number.prototype.times = function (f, context) {
+  let n = this.valueOf();
+  for (let i = 0; i < n; i++) f.call(context, i)
+};
+// we can use Object.defineProperty() to add an un-enumerable property to an object instead of Object.prototype
+
+/* # 9.5 subClasses */
+
+/* ## 9.5.1 Subclasses and Prototypes */
+function Nspan(start, span) {
+  if (span > 0) {
+    this.from = start;
+    this.end = start + span;
+  }
+  else {
+    this.to = start;
+    this.end = start + span;
+  }
+}
+// ensure the Nspan inherit all the properties from the Range prototype;
+Nspan.prototype = Object.create(Range.prototype);
+// we don't want to inherit the constructor of the Range prototype,
+Nspan.prototype.constructor = Nspan;
+// Defining own toString();
+Nspan.prototype.toString = function () {
+  return `${this.to}`
+}
+// note that Nspan have the same initialization like Range and we don't need to invoke the superclass Range , A
+// robust subclassing mechanism needs to allow classes to invoke the methods and constructor of their superclass
+
+/* ## 9.5.2 Subclassing with extend and super */
+class EZarray extends Array {
+  get first() { return this[0]; }
+  get last() { return this[this.length - 1]; }
+}
+// not only the instance methods and the constructor function.
+let a = new EZarray();
+console.log(a instanceof EZarray); //true;
+console.log(a instanceof Array); //true;
+a.push(1, 2, 3, 4);
+console.log(a.last);//4
+console.log(
+  EZarray.isArray(a) // true;
+)
+// console.log(Array.prototype.isPrototypeOf(EZarray.prototype)) // true
+// console.log(Array.isPrototypeOf(EZarray)) //true;
+
+class SubClass extends Complex {
+  constructor(real, imaginary, type) {
+    super(real, imaginary);
+  }
+  // if there is implicit constructor, it will automatically invoke the super(); but if there is a constructor, it must have super();
+}
+let sub = new SubClass(1, 2, 'ss');
+// more complex class using super()
+class TypeMap extends Map {
+  constructor(keyType, valueType, entries) {
+    new.target === TypeMap // true 
+    if (entries) {
+      for (let [k, v] of entries) {
+        if (typeof k !== keyType || typeof v !== valueType) {
+          throw new TypeError('type checking does not pass')
+        }
+      }
+    }
+    super(entries);
+    this.keyType = keyType;
+    this.valueType = valueType;
+  }
+  set(key, value) {
+    // note the super.set
+    // console.log(super.entries) the super is like this
+    return super.set(key, value)
+  }
+}
+let typeMap = new TypeMap()
+typeMap.set(1, 2)
+// Super()
+// 1.must use super if you have a constructor in the class that you are extending
+// 2.if you don't define a constructor , super will be automatically defined for you using the values whatever you passed
+// 3.you may not use the this keywords, before the invoking super.
+// 4.the new.target in undefined in the function that are invoked without the new keyword ,but in the constructor function .it is the reference to the constructor that was invoked.
+// override the superclass function does't need to invoke the superclass function.
+// we can use #keyType to avoid subvert the private field.
+
+/* # 9.5.3 Delegation instead of Inheritance */
+class Histogram {
+  constructor() { this.map = new Map(); }
+  count(key) { return this.map.get(key) || 0; }
+  has(key) { return this.count(key) > 0; }
+  get size() { return this.map.size; }
+  add(key) { this.map.set(key, this.count(key) + 1); }
+  delete(key) {
+    let count = this.count(key);
+    if (count === 1) {
+      this.map.delete(key);
+    } else if (count > 1) {
+      this.map.set(key, count - 1);
+    }
+  }
+  [Symbol.iterator]() { return this.map.keys(); }
+  keys() { return this.map.keys(); }
+  values() { return this.map.values(); }
+  entries() { return this.map.entries(); }
+}
+
+/* # 9.5.4 Class Hierarchies and Abstract Classes */
+class AbstractSet {
+  has(x) { throw new Error("Abstract method"); }
+}
+class NotSet extends AbstractSet {
+  constructor(set) {
+    super();
+    this.set = set;
+  }
+  has(key) { return this.set.has(key); }
+  toString() { return this.set.toString(); }
+}

@@ -53,7 +53,7 @@ let o3 = Object.create(Object.prototype);
 let so = { x: "don't modify this value" };
 // library.function(Object.create(so)); // guard against accidental modifications
 
-/* # 6.3 querying and setting properties */
+/* # 6.3 querying and setting properties */  
 let author = book.author;
 let name = author.surname;
 let title = book["main title"];
