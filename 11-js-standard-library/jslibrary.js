@@ -176,7 +176,7 @@ r = /[^(]*/; // match zero or more characters that are not open parens
 /\d{3}|[a-z]{4}/;
 // () group separated items
 /java(script)?/; // match java or javascript
-/(ab|cd)+|ef/; 
+/(ab|cd)+|ef/;
 // () as the sub-expression \1 refers back the first sub-expression
 (/[a-z]+(\d+)/);
 /([Jj]ava([Ss]cript)?)\sis\s(fun\w*)/;// use the position of left parenthesis \2 represent [Ss]cript
@@ -195,6 +195,121 @@ r = /[^(]*/; // match zero or more characters that are not open parens
 /(?<city>[a-z]*)/;
 /(?<city>\w+) (?<state>[A-Z]{2}) (?<zipcode>\d{5})(?<zip9>-\d{4})?/;
 /(?<quote>['"])[^['"]*\k<quote>]/; // the \k<quote> is a named captured group reference
-// Specifying match position;
+// Specifying match position; anchor characters like ^ and $
+/^JavaScript$/;
+/\sJava\s/;
+/\bJava\b/; // \B[sS]cript/ match JavaScript postscript but not script ort scripting
+/[Jj]ava([Ss]cript)?(?=\:)/;
+/Java(?!Script)([A-Z]\w*)/; // 只要不匹配Script
+/* 
+  # anchors
+  1. ^ beginning of the string
+  $ end of the string
+  \b Match a word boundary. That is, match the position between a \w character and a \W character or between a \w
+character and the beginning or end of a string. (Note, however, that [\b] matches backspace
+  \B not a word boundary
+  (?=p) 必须包含   
+  (?!p) 必须不包含
+*/
+/* 
+  # flags after the second \
+  g:global match
+  i:case insensitive
+  m:multiline 
+  s:like m “.” is matched every word
+  u:Unicode 
+  y:sticky match , match the beginning  like ^
+*/
+
+/* # 11.3.2 String Methods for pattern Matching */
+// search()
+"JavaScript".search(/script/ui); // 4
+"Python".search(/script/ui); //-1
+// replace(reg,replaceString) 
+let test = "Javascript is fun";
+test.replace(/javascript/gi, "JavaScript");
+// named captured group
+let quote = /"(?<quotedText>[^"]*)"/g;
+'he said "stop" "abc"'.replace(quote, '%$<quotedText>%'); // he said %stop%
+// arguments 1.entire string, 2.匹配组 3.位置 4.整个字串，5.对象键值对名称
+'he said "stop" "abc"'.replace(quote, (sub, ...args) => {
+  // console.log(sub, ...args)
+  // "stop" stop 8 he said "stop" "abc"[Object: null prototype] { quotedText: 'stop' }
+  // "abc" abc 15 he said "stop" "abc"[Object: null prototype] { quotedText: 'abc' }
+}); // he said %stop%
+let str = "15 times 15 is 225";
+str.replace(/\d+/gu, n => parseInt(n).toString(16))
+// Match return an array or null 
+"7 plus 8 equals 15".match(/\d+/g); // ["7", "8", "15"]
+// use group 
+let url = /(\w+):\/\/([\w.]+)\/(\S)*/;
+let text = "Visit my blog at http://www.example.com/~daviad http://www.111.com/~222'";
+let match = text.match(url);
+match;
+// 如果没有/g 匹配的完全不同,只匹配第一个 a[0]为匹配到的字符串，其余为（）包含部分
+/* [
+  'http://www.example.com/~daviad',
+  'http',
+  'www.example.com',
+  'd',
+  index: 17,
+  input: 'Visit my blog at http://www.example.com/~daviad' "",
+  groups: undefined
+]; */
+// groups
+url = /(?<protocol>\w+):\/\/(?<host>[\w.]+)\/(?<path>\S)*/;
+match = text.match(url);
+match;
+// /g
+//[ 'http://www.example.com/~daviad', "http://www.111.com/~222'" ]
+// 没有/g
+match.groups; // { protocol: 'http', host: 'www.example.com', path: '~daviad' }
+// /yg /y /g with Match()
+let vowel = /[aeiou]/y;
+"test".match(vowel), //null
+  vowel.lastIndex = 1,
+  "test".match(vowel); //['e',index:1,input:'test',groups:undefined]
+// MatchAll()
+const words = /\b\p{Alphabetic}+\b/gu; // \p is not supported in Firefox yet
+const text1 = "This is a naïve test of the matchAll() method.";
+//\p{Property}用于匹配具有指定属性的字符，其中Property是Unicode属性的名称。例如，\p{Letter}匹配任何Unicode字母字符，\p{Number}匹配任何Unicode数字字符。
+for (let word of text1.matchAll(words)) {
+  console.log(`Found '${word[0]}' at index ${word.index}.`);
+}
+
+// Split()
+"12,2,3,".split(",");
+"1 , 2 , 3 , \n4 , 5".split(/\s*,\s*/);  //[1,2,3,4,5]
+const htmlTag = /<([^>]+)>/;
+// 如果使用group，匹配到的字符会包含在数组中
+"<br/>1,2,3".split(htmlTag); //['','br/','1,2,3']
+
+
+/* # 11.3.3 The RegExp Class */
+let zipcode = new RegExp("\\d{5}", "g")
+let exactMath = /JavaScript/;
+let caseI = new RegExp(exactMath, "i");
+// RegExp property
+log(caseI.source) //JavaScript
+log(caseI.flags) //i
+log(caseI.global) //false
+log(caseI.ignoreCase); //true
+log(caseI.multiline); //false
+log(caseI.dotAll);
+caseI.unicode;
+caseI.sticky;
+caseI.lastIndex;
+// test
+'js', caseI.test('javascript') //true
+// exec
+log(caseI.exec('javascript')) // [ 'javascript', index: 0, input: 'javascript', groups: undefined ] like match no g
+let pa = /Java/g;
+let txt = "JavaScript > Java";
+// exec 会随着成功而更新lastIndex 如果匹配成功之后修改，如果不成功的话直接重置0
+while ((match = pa.exec(txt)) !== null) {
+  console.log(`Matched ${match[0]} at ${match.index}`);
+  console.log(`Next search begins at ${pa.lastIndex}`);
+}
+// 注意将reg存储起来再调用exec ，否则每次都是新的lastIndex不会变
 
 

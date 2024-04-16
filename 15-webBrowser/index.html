@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+  img {
+    height: 100px;
+    width: 100px;
+  }
+</style>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+
+
+
+
+<body>
+  <div class="grand" style="height:200px;background-color: pink;">
+    <div class="father" style="height: 100px;background-color: black;">
+      <div class="son" style="height: 30px;background-color: blueviolet;"></div>
+    </div>
+  </div>
+</body>
+<script type="module">
+  const grand = document.getElementsByClassName("grand");
+  const father = document.getElementsByClassName("father");
+  const son = document.getElementsByClassName("son");
+  [grand,father,son].forEach((target,index)=>{
+    target[0].addEventListener('click',(e)=>{
+      // 没有capture
+      // e.stopPropagation(); // 在capture阶段运行,没用了/
+      e.stopImmediatePropagation(); // 和上面一样的结果，都不会往上触发
+      // 有 capture
+      // stopPropagation()都是0
+    
+      console.log(`index: ${index}`)
+ 
+    }
+    ,{
+      capture:true
+    }
+    )
+  })
+</script>
+
+</html>
