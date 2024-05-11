@@ -14,7 +14,7 @@
 // 可以使用import 或者使用创建script标签
 
 /* # 15.1.2 Document Object model */
-// DoM api 真实反正html 文档结构，每一个tag一个element 对象 每一个text 都有一个text object
+// DoM api 真实反正html 文档结构，每一个tag一个element 对象 每一个text 都有一个text object;
 
 /* global Object */
 // 每个浏览器窗口或者tab都有一个globalObject，除了运行在work thread 的代码，当前窗口下所有js共享这个global
@@ -123,7 +123,7 @@ api specify event; // video audio "playing" "waiting" web 平台 api is before p
 // 一种直复制，另一种addeventListener 也可以直接定义在html上
 <button onclick="console.log('hello')"></button>
 addEventListener 不会和 直接设置相互影响，按照registered order 执行, third optional argument is a Boolean;如果是true 作为一个capture event handler invoking
-并且remove的时候必须也添加，不过只是其中的一部分,默认是true，不发生在捕获阶段
+并且remove的时候必须也添加，不过只是其中的一部分, 默认是true，不发生在捕获阶段
 paired with removeEventListener,
 document.addEventListener('click', handleClick, {
   capture: true,
@@ -133,7 +133,7 @@ document.addEventListener('click', handleClick, {
 passive 如果是true 代表着永远不能使用 preventDefault 来阻止默认时间
 
 /* # 15.2.3 Event handler invocation  */
-event properties ; type target currentTarget timeStamp isTrusted（如果是web browser发出的，就是true，js 的就是false） ClientX 
+event properties; type target currentTarget timeStamp isTrusted（如果是web browser发出的，就是true，js 的就是false） ClientX 
 如果 return flase， 就会组织默认时间， 使用preventDefault 是阻止浏览器执行默认造作的标准和首选方法。
 按照 register order 执行。
 
@@ -143,10 +143,88 @@ event properties ; type target currentTarget timeStamp isTrusted（如果是web 
 target => document object => window object
 load 事件是不会冒泡到window object 的
 capture => target event handler => bubble 
-addEventListener 的 capture 是true 的话就会在capture阶段触发。也就是先是 window=》document=》tree =》 dom target
+addEventListener 的 capture 是true 的话就会在capture阶段触发。也就是先是 window =》document =》tree =》 dom target
 事件capture 提供了delivered to their target 之前 seek 到他的target  还可以过滤事件，处理鼠标拖动，
 
 /* # 15.2.5 event cancellation */
 preventDefault() 阻止
 stopPropagation()  在capture阶段调用 stopImmediatePropagation() 在target 和 bubble 阶段和stopPropagation 一样;
 并且也会阻止任何子事件注册在同一个target上的
+可以自己custom event  document.dispatchEvent(new CustomEvent("busy", { detail: false }))
+// Dispatch a custom event so the UI knows we are busy
+document.dispatchEvent(new CustomEvent("busy", { detail: true }));
+// Perform a network operation
+fetch(url)
+  .then(handleNetworkResponse)
+  .catch(handleNetworkError)
+  .finally(() => {
+    // After the network request has succeeded or failed, dispatch
+    // another event to let the UI know that we are no longer busy.
+    document.dispatchEvent(new CustomEvent("busy", { detail: false }));
+  });
+// Elsewhere, in your program you can register a handler for "busy" events
+// and use it to show or hide the spinner to let the user know.
+document.addEventListener("busy", (e) => {
+  if (e.detail) {
+    showSpinner();
+  } else {
+    hideSpinner();
+  }
+})
+/* # 15.3 scripting documents */
+/* 
+  p[lang="fs"]
+  *[name="x"]
+  span.fatal.error
+  span[lang="fs"].warning
+  img+p.caption img后紧跟的p 
+  h2 ~ p 
+  button , input[type="button"]
+*/
+let spinner = document.querySelector('css选择去') querySelector返回第一个匹配到的怨妇 或者null
+let title = document.querySelectorAll('h1,h2,h3')  返回所有  返回一个array-like
+closest() 向上寻找
+let hyperlink = event.target.closest("a[href]");
+function insideList(e) {
+  return e.closest("ul,ol,dl") !== null;
+}
+matches()
+function isHeading(e) {
+  return e.matches("h1,h2,h3")
+}
+document.getElementsByTagName 等 都返回一个NodeList 但是返回的是"live"的 就是说length 和内容会变化
+
+Preselected elements
+有一些预制的select
+document.forms.address;
+<form id="address"></form>
+/* # 15.3.2 document structure and traversal */
+// 这些是不关注text文档的
+// 
+parentNode children nextElementSbling previousElementSibling
+// 关注text
+Documents as trees of nodes;
+parentNode childNode nextSibling nodeType
+
+/* # 15.3.3 Attributes */
+// element 也除了tagname 有a set of name/value pairs known as attribute; like <a/> has a href
+getAttribute(), setAttribute(), hasAttribute(), removeAttribute()
+let image = document.querySelector("#main_image");
+let url = image.src;
+image.id = "main_image";
+
+let f = document.querySelector("form");
+form.action = "https://www.example.com/sumbit";
+f.method = "POST";
+// class attribute
+// class 是保留字符 className 是一个字符串不好删减 classList 应运而生 Array-like object 
+let spinner = document.querySelector("#spinner");
+// add , coontaines
+spinner.classList.remove("hiddren");
+
+// Dataset attribute
+// 以data-开头
+<h1 id="title" data-section-number="16.1">Attributes</h1>
+// dataset.sectionNumber;
+
+/* # 15.3.4 Element Content */

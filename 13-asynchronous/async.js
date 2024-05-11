@@ -128,6 +128,7 @@ Promise.all(urls)
 function sb(url) {
   return getJSON().then()
 }
+
 // promise based on synchronous values
 Promise.resolve(1); // 返沪一个promise 并且立即fulfilled 
 let err = Promise.reject(1);

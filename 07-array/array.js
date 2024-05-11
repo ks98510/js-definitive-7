@@ -158,6 +158,31 @@ table = new Array(10);               // 10 rows of the table
 for (let i = 0; i < table.length; i++) {
   table[i] = new Array(10);            // Each row has 10 columns
 }
+// 多维数组扁平化
+table.flat(Infinity);
+var arr1 = [1, 2, 3, [1, 2, 3, 4, [2, 3, 4]]];
+function flatten(arr) {
+  let res = []
+  for (let i = 0; i < arr.length; i++) {
+    if (Array.isArray(arr[i])) {
+      res = res.concat(flatten(arr[i]))
+    }
+    res.push(arr[i])
+  }
+  return res
+}
+function flatten(arr) {
+  while (arr.some(item => Array.isArray(arr))) {
+    arr = [].concat(...arr)
+  }
+  return arr;
+}
+
+function flatten(arr) {
+  return arr.reduce((res, next) => {
+    return res.concat(Array.isArray(next) ? flatten(next) : next)
+  }, [])
+}
 
 // Initialize the array
 for (let row = 0; row < table.length; row++) {
@@ -280,7 +305,7 @@ stack.pop(); // [1];return [4,5];
 stack.pop(); // []; return 1;
 /* use spread operator to flatten it explicitly */
 a.push(...[1, 2, 3]); // [1,2,3,1,2,3]
-a.push(...[2, 3, [4, 5]]); // [ 1, 2, 3, 1, 2, 3, 2, 3, [ 4, 5 ] ]
+a.push(...[2, 3, [4, 5]]); // [ 1, 2, 3, 1, 2, 3, 2, 3, [ 4, 5 ] ] 
 /* unshift shift the existing array elements up to higher, add one or more new elements to the beginning of the array,return the new length */
 /* shift remove and return the first element ,shifting all subsequent elements down one place to occupy the newly vacant space at the start of the array.  */
 /* we can implement a queue with unshift and shift ,but it is less efficient than push and pop because the element should be shifted down or up every time. */
@@ -459,7 +484,7 @@ log(isArrayLike([])); // true;
 /* use Function.call() to call a real array function */
 a = { "0": "a", "1": "b", "2": "c", length: 3 }; // An array-like object
 log(Array.prototype.join.call(a, "+"));// => "a+b+c"
-Array.prototype.map.call(a, x => x.toUpperCase())  // => ["A","B","C"]
+Array.prototype.map.call(a, x => x.toaUpperCase())  // => ["A","B","C"]
 Array.prototype.slice.call(a, 0)   // => ["a","b","c"]: true array copy
 Array.from(a)                      // => ["a","b","c"]: easier array copy
 

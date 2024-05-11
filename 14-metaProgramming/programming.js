@@ -260,7 +260,7 @@ p = readOnlyProxy(o);
 p.x;
 // p.x = 3; // TypeError
 // delete p.y  //TypeError
-// p.__proto__ = {} ; // TypeError
+// p.__proto__ = {} ; // TypeErrorb
 // p.z = 3; //TypeError
 // intercept the operations but still delegate the operations to the targets 所有的都打印
 function loggingProxy(o, objname) {

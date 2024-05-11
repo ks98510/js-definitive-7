@@ -238,7 +238,7 @@ log(f.next(24)); // z = 24; y =12 x = 1 37
 /* # 12.4.3 return throw */
 /* summary */
 /* 
-• The for/of loop and the ... spread operator work with iterable objects.
+• The for/of loop and the ... spread operator worke with iterable objects.
 • An object is iterable if it has a method with the symbolic name [Symbol.itera
 tor] that returns an iterator object.
 • An iterator object has a next() method that returns an iteration result object.

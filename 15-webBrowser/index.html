@@ -44,6 +44,75 @@
     }
     )
   })
+  Function.prototype.myCall = function(context,...args){
+    let self = context;
+    self.fn = this;
+    self.fn(...args);
+    delete self.fn;
+}
+ Function.prototype.myBind = function(context,...bindArgs){
+  let self = this;
+  let fBound = function(...args){
+    let bindArgs = [...bindArgs,...args];
+    return self.apply(this instanceof fBound?this:context,bindArgs)
+
+  }
+ }
+
+ function MyinstanceOf(instance,Obj){
+    if(typeof obj!=='object'||obj===null){
+      return false
+    }
+    let protoType = Object.getPrototypeOf(Obj);
+    while(instance.__proto__!==null){
+      if(instance.__proto__===protoType) return true;
+      instna
+    }
+ }
+ let obj = new Object('');
+ let o = {}
+ o.protoType = this;
+let res =  this.apply(o,...args);
+function curry(fn,...args){
+  let len = fn.length;
+  let arg = [...args]
+   function calc(...cArgs){
+    arg= [...arg,...cArgs];
+    if(arg.length<len){
+      return calc
+    }
+    else {
+      return fn.apply(this,arg.slice(0,len))
+    }
+   }
+  return calc
+}
+Object.assign({},{a:1},{b:2});
+JSON.stringify(JSON.parse(object));
+// NaN，ifinity，JSON 变成null
+// undefined 直接忽略
+// RegExp空对象，Date，字符串，原型链上，循环引用问题
+const checkType = (target)=>{return   Object.prototype.toString.call(target).slice(8,-1).toLowerCase()};
+const returnTmp = (val) => new val.constructor(val);
+
+function deepClone(target,hash = new WeakMap()){
+  if(typeof target!=='object'||target===null){
+    return target
+  }
+  // date
+  // regexp
+  // 继承原型
+  const cloneTarget = returnTmp(target);
+  if(hash.has(target)){
+    return hash.set(target);
+  }
+  hash.set(target,cloneTarget);
+  Reflect.ownKeys(target).forEach((key) => {
+    cloneTarget[key] = deepClone(target[key], hash);
+  });
+}
 </script>
+
+
 
 </html>
